@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flores Amarillas 💛</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      background-color: #f4f4f9;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="flowerCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('flowerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Configuración del árbol
+    const startX = canvas.width / 2;
+    const startY = canvas.height - 50;
+    const trunkHeight = 120;
+    const trunkWidth = 18;
+
+    // Estructura de ramas
+    const branches = [
+      { x1: startX, y1: startY, x2: startX, y2: startY - trunkHeight, width: trunkWidth },
+      // Ramas principales
+      { x1: startX, y1: startY - trunkHeight, x2: startX - 80, y2: startY - trunkHeight - 90, width: 12 },
+      { x1: startX, y1: startY - trunkHeight, x2: startX + 80, y2: startY - trunkHeight - 90, width: 12 },
+      { x1: startX, y1: startY - trunkHeight + 30, x2: startX - 120, y2: startY - trunkHeight - 40, width: 10 },
+      { x1: startX, y1: startY - trunkHeight + 30, x2: startX + 120, y2: startY - trunkHeight - 40, width: 10 },
+      // Sub-ramas
+      { x1: startX - 80, y1: startY - trunkHeight - 90, x2: startX - 140, y2: startY - trunkHeight - 160, width: 7 },
+      { x1: startX - 80, y1: startY - trunkHeight - 90, x2: startX - 40, y2: startY - trunkHeight - 170, width: 7 },
+      { x1: startX + 80, y1: startY - trunkHeight - 90, x2: startX + 40, y2: startY - trunkHeight - 170, width: 7 },
+      { x1: startX + 80, y1: startY - trunkHeight - 90, x2: startX + 140, y2: startY - trunkHeight - 160, width: 7 },
+      { x1: startX - 120, y1: startY - trunkHeight - 40, x2: startX - 180, y2: startY - trunkHeight - 100, width: 6 },
+      { x1: startX + 120, y1: startY - trunkHeight - 40, x2: startX + 180, y2: startY - trunkHeight - 100, width: 6 }
+    ];
+
+    // Función para dibujar el tronco y las ramas
+    function drawTree() {
+      // Suelo
+      ctx.beginPath();
+      ctx.moveTo(0, startY);
+      ctx.lineTo(canvas.width, startY);
+      ctx.strokeStyle = '#2d5a27';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Ramas
+      branches.forEach(b => {
+        ctx.beginPath();
+        ctx.moveTo(b.x1, b.y1);
+        ctx.lineTo(b.x2, b.y2);
+        ctx.strokeStyle = '#2c4c38';
+        ctx.lineWidth = b.width;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      });
+    }
+
+    // Dibujar una flor individual tipo girasol/flor amarilla
+    function drawFlower(x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      const petals = 12;
+      const petalRadius = 14;
+
+      // Petalitos amarillos
+      ctx.fillStyle = '#fbc02d';
+      for (let i = 0; i < petals; i++) {
+        const angle = (i * 2 * Math.PI) / petals;
+        const px = Math.cos(angle) * petalRadius;
+        const py = Math.sin(angle) * petalRadius;
+
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Centro marrón
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, Math.PI * 2);
+      ctx.fillStyle = '#3e2723';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Generar posiciones para la copa de flores (forma de corazón/árbol)
+    const flowerPositions = [];
+    for (let i = 0; i < 220; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 160;
+      
+      // Ajuste para distribución en copa
+      const x = startX + Math.cos(angle) * (distance * 1.2);
+      const y = (startY - trunkHeight - 60) + Math.sin(angle) * (distance * 0.9);
+
+      flowerPositions.push({ x, y, scale: 0, targetScale: 0.7 + Math.random() * 0.4 });
+    }
+
+    // Animación
+    drawTree();
+    let flowerIndex = 0;
+
+    function animate() {
+      if (flowerIndex < flowerPositions.length) {
+        // Revelar flores progresivamente
+        for (let k = 0; k < 3; k++) {
+          if (flowerIndex < flowerPositions.length) {
+            const f = flowerPositions[flowerIndex];
+            drawFlower(f.x, f.y, f.targetScale);
+            flowerIndex++;
+          }
+        }
+        setTimeout(() => requestAnimationFrame(animate), 30);
+      }
+    }
+
+    // Iniciar florecimiento
+    setTimeout(animate, 500);
+  </script>
+</body>
+</html>
